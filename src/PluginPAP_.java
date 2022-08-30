@@ -28,12 +28,12 @@ public class PluginPAP_ implements PlugIn, DialogListener {
 	
 	public void showGUI(){
 		bri = con = sol = 0;
-		sat = 1;
+		sat = 1;		
 		this.gui = new GenericDialog("Image adjust");
 		this.gui.addDialogListener(this);
 		gui.addSlider("Bright",-255,255,this.bri,1);		
 		gui.addSlider("Contrast",-255,255,this.con,1);
-		gui.addSlider("Solarization",0,255,this.sol,1);
+		gui.addSlider("Solarization",0,255,this.sol,1);		
 		gui.addSlider("Desaturation",0,1,this.sat,0.01);
 		gui.showDialog();
 		if (gui.wasOKed()) {			
@@ -68,6 +68,7 @@ public class PluginPAP_ implements PlugIn, DialogListener {
 	private void changeImage() {		
 		int x, y, pixelValue[] = {0,0,0};
 		double factor = (259 * (con + 255))/(255 * ( 259 - con));
+		String solMet = gui.getNextRadioButton();
 		for (x = 0; x < image.getWidth(); x++) {
 			for (y = 0; y < image.getHeight(); y++) {
 				pixelValue = processorBkp.getPixel(x, y, pixelValue);	
@@ -81,8 +82,10 @@ public class PluginPAP_ implements PlugIn, DialogListener {
 						pixelValue[i] = pixelValidation((int) (factor * ((pixelValue[i]-128)+128)));						
 					}
 					//solarization
-					if(sol != 0 && pixelValue[i] != sol) {					
-						pixelValue[i] = 255 - pixelValue[i];
+					if(sol != 0) {						
+						if (pixelValue[i] < sol) {
+							pixelValue[i] = 255 - pixelValue[i];
+						} 												
 					}
 					//saturation
 					double Y = 0.299 * pixelValue[0] + 0.587 * pixelValue[1] + 0.114 * pixelValue[2];					
