@@ -54,55 +54,44 @@ public class PluginPAP_ implements PlugIn, DialogListener {
 		changeImage();	
 		return true;
 	}
+	
+	private int pixelValidation(int pixel) {
+		if (pixel > 255) {
+			return 255;
+		}
+		else if (pixel < 0) {
+			return 0;
+		}
+		else return pixel;
+	}
 
 	private void changeImage() {		
 		int x, y, pixelValue[] = {0,0,0};
-		double factor = (259*(con+255))/(255*(259-con));
+		double factor = (259 * (con + 255))/(255 * ( 259 - con));
 		for (x = 0; x < image.getWidth(); x++) {
 			for (y = 0; y < image.getHeight(); y++) {
-				pixelValue = processorBkp.getPixel(x, y, pixelValue);				
-				//bright
-				if(bri != 0) {
-					pixelValue[0] = this.getValidPixelValueBright(pixelValue[0], bri);
-					pixelValue[1] = this.getValidPixelValueBright(pixelValue[1], bri);
-					pixelValue[2] = this.getValidPixelValueBright(pixelValue[2], bri);
-				}
-				//contrast
-				if(con != 0) {
-					pixelValue[0] = (int) factor * ((pixelValue[0]-128)+128);
-					pixelValue[1] = (int) factor * ((pixelValue[1]-128)+128);
-					pixelValue[2] = (int) factor * ((pixelValue[2]-128)+128);
-				}
-				/*solarization
+				pixelValue = processorBkp.getPixel(x, y, pixelValue);	
 				for (int i=0 ;i<3; i++) {
-					if (pixelValue[i] != sol) {
+					//bright
+					if(bri != 0) {
+						pixelValue[i] = pixelValidation(pixelValue[i] + (int) bri);
+					}
+					//contrast
+					if(con != 0) {						
+						pixelValue[i] = pixelValidation((int) (factor * ((pixelValue[i]-128)+128)));						
+					}
+					//solarization
+					if(sol != 0 && pixelValue[i] != sol) {					
 						pixelValue[i] = 255 - pixelValue[i];
 					}
-				}	*/			
-				//desaturation
-				if (sat != 1) {
+					//saturation
 					double Y = 0.299 * pixelValue[0] + 0.587 * pixelValue[1] + 0.114 * pixelValue[2];					
-					pixelValue[0] = (int) (Y + sat * (pixelValue[0] - Y));
-					pixelValue[1] = (int) (Y + sat * (pixelValue[1] - Y));
-					pixelValue[2] = (int) (Y + sat * (pixelValue[2] - Y));						
-				}				
+					pixelValue[i] = (int) (Y + sat * (pixelValue[i] - Y));							
+				}
 				processor.putPixel(x, y, pixelValue);
 			}
 		}
 		image.updateAndDraw();
-	} 
-	
-	
-	
-	private int getValidPixelValueBright(int pixel, double factor) {
-		if ((pixel + factor) > 255) {
-			return 255;
-		}
-		if ((pixel + factor) < 0) {
-			return 0;
-		}
-		return (pixel + (int) factor);
-	}		
-	
+	} 	
 }
 	
