@@ -19,7 +19,7 @@ public class PluginPAP_ implements PlugIn, DialogListener {
 		bkpImage.setTitle(IJ.getImage().getTitle());
 		image = IJ.getImage();
 		processor = image.getProcessor();
-		processorBkp = this.bkpImage.getProcessor();	
+		processorBkp = bkpImage.getProcessor();	
 		if (bkpImage.getType() != ImagePlus.COLOR_RGB) {
 			IJ.error("In order to run this plugin, the image must be Type RGB");
 		}
@@ -31,13 +31,13 @@ public class PluginPAP_ implements PlugIn, DialogListener {
 		sat = 1;		
 		this.gui = new GenericDialog("Image adjust");
 		this.gui.addDialogListener(this);
-		gui.addSlider("Bright",-255,255,this.bri,1);		
-		gui.addSlider("Contrast",-255,255,this.con,1);
-		gui.addSlider("Solarization",0,255,this.sol,1);		
-		gui.addSlider("Desaturation",0,1,this.sat,0.01);
+		gui.addSlider("Bright",-255,255,bri,1);		
+		gui.addSlider("Contrast",-255,255,con,1);
+		gui.addSlider("Solarization",0,255,sol,1);		
+		gui.addSlider("Desaturation",0,1,sat,0.01);
 		gui.showDialog();
 		if (gui.wasOKed()) {			
-			IJ.log("Saved");
+			IJ.log("Changes saved");
 		}
 		if (gui.wasCanceled()) {
 			IJ.getImage().close();
@@ -67,8 +67,7 @@ public class PluginPAP_ implements PlugIn, DialogListener {
 
 	private void changeImage() {		
 		int x, y, pixelValue[] = {0,0,0};
-		double factor = (259 * (con + 255))/(255 * ( 259 - con));
-		String solMet = gui.getNextRadioButton();
+		double factor = (259 * (con + 255))/(255 * ( 259 - con));		
 		for (x = 0; x < image.getWidth(); x++) {
 			for (y = 0; y < image.getHeight(); y++) {
 				pixelValue = processorBkp.getPixel(x, y, pixelValue);	
@@ -87,7 +86,7 @@ public class PluginPAP_ implements PlugIn, DialogListener {
 							pixelValue[i] = 255 - pixelValue[i];
 						} 												
 					}
-					//saturation
+					//saturation					
 					double Y = 0.299 * pixelValue[0] + 0.587 * pixelValue[1] + 0.114 * pixelValue[2];					
 					pixelValue[i] = (int) (Y + sat * (pixelValue[i] - Y));							
 				}
